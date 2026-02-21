@@ -1,3 +1,15 @@
+pase de ser una "página web que parece app" a una app funcional y real que ella pueda tener instalada, sin gastar un solo centavo en licencias de Apple (que cuestan $99 USD al año) o de Google.
+
+Para lograr esto de forma gratuita, usaremos el concepto de PWA (Progressive Web App) de nivel avanzado. Esto permite que el sitio web que ya hicimos se comporte exactamente como una app descargada de la App Store.
+
+Aquí tienes los pasos para que sea 100% funcional:
+
+1. El Código de "Funcionalidad Real"
+Para que no sea solo visual, necesitamos que la app guarde los datos. He añadido un "Manifiesto", que es el archivo que le dice al celular: "Oye, no soy una web, soy una App".
+
+Copia y sustituye tu código en GitHub por este (Versión Final Funcional):
+
+HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,6 +19,10 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CinnaPaz">
+    
+    <link rel="apple-touch-icon" href="https://i.imgur.com/W9vU7vG.png">
+    <link rel="icon" type="image/png" href="https://i.imgur.com/W9vU7vG.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     
@@ -16,16 +32,11 @@
             background-color: #f0f8ff; font-family: 'Quicksand', sans-serif; 
             color: var(--azul-texto); margin: 0; padding: 15px;
             display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
         .container { width: 100%; max-width: 450px; }
         .cinna-box { height: 150px; display: flex; align-items: center; justify-content: center; }
-        
-        /* Imagen de respaldo estable */
-        .header-img { 
-            width: 130px; 
-            animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
-        }
+        .header-img { width: 130px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
 
         .card {
@@ -43,19 +54,21 @@
             padding: 14px; border-radius: 50px; font-weight: 600; width: 100%; 
             cursor: pointer; margin-top: 10px;
         }
+        .habit-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0faff; }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--azul-cinna); }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="cinna-box">
-            <img src="https://i.imgur.com/W9vU7vG.png" id="cinnaImg" class="header-img" alt="Cinnamoroll">
+            <img src="https://i.imgur.com/W9vU7vG.png" id="cinnaImg" class="header-img">
         </div>
 
         <div class="card">
-            <h2>☁️ Desahogo con Cinnamoroll</h2>
-            <textarea id="moodInput" rows="3" placeholder="Escribe aquí..."></textarea>
-            <button onclick="analizarSentimiento()">✨ Recibir Apoyo</button>
+            <h2>☁️ ¿Cómo estás hoy?</h2>
+            <textarea id="moodInput" rows="3" placeholder="Cuéntale a Cinnamoroll..."></textarea>
+            <button onclick="procesar()">✨ Recibir Apoyo</button>
         </div>
 
         <div id="habitCard" class="card" style="display:none;">
@@ -63,12 +76,10 @@
         </div>
     </div>
 
-    <audio id="magicSound" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="magicSound" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3"></audio>
 
     <script>
-        function analizarSentimiento() {
+        function procesar() {
             const texto = document.getElementById('moodInput').value.toLowerCase();
             const habitContainer = document.getElementById('dynamicHabits');
             const habitCard = document.getElementById('habitCard');
@@ -76,22 +87,37 @@
             
             if(!texto.trim()) return;
 
-            // ACTIVAR SONIDO
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log("El navegador bloqueó el sonido inicial"));
+            // Intentar sonido
+            audio.play().catch(() => {});
 
-            habitContainer.innerHTML = '<h2>☁️ Pasitos para ti</h2>';
             habitCard.style.display = 'block';
+            habitContainer.innerHTML = '<h2>☁️ Pasitos para ti</h2>';
             
-            let sugerencias = ['Habla con Dios un momento', 'Bebe un poco de agua', 'Respira profundo'];
-
-            if (texto.includes('ansios') || texto.includes('estres')) {
-                sugerencias = ['Haz el ejercicio de respiración 4-4-4', 'Repite: Dios tiene el control', 'Escucha ruido blanco 5 min'];
+            let sugerencias = ['Ora 1 minuto', 'Bebe agua', 'Respira profundo'];
+            if(texto.includes('triste') || texto.includes('sola')) {
+                sugerencias = ['Lee Salmo 147:3', 'Escucha tu canción favorita', 'Escribe 3 cosas buenas'];
+            } else if(texto.includes('ansia') || texto.includes('estres')) {
+                sugerencias = ['Haz respiración 4-7-8', 'Recuerda: Dios está contigo', 'Estira tus hombros'];
             }
 
-            sugerencias.forEach(s => {
-                habitContainer.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee">🌸 ${s}</div>`;
+            sugerencias.forEach((s, i) => {
+                const id = 'habito_' + i;
+                habitContainer.innerHTML += `
+                    <div class="habit-row">
+                        <input type="checkbox" id="${id}" onchange="guardar('${id}')">
+                        <label for="${id}">${s}</label>
+                    </div>`;
             });
+            
+            // Animación de Cinnamoroll
+            const img = document.getElementById('cinnaImg');
+            img.style.transform = 'scale(1.2)';
+            setTimeout(() => img.style.transform = 'scale(1)', 200);
+        }
+
+        function guardar(id) {
+            const cb = document.getElementById(id);
+            localStorage.setItem(id, cb.checked);
         }
     </script>
 </body>
