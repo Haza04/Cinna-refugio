@@ -3,13 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cinna-Paz</title>
+    <title>Cinna-Refugio Dinámico</title>
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CinnaPaz">
-    <link rel="apple-touch-icon" href="https://i.pinimg.com/originals/8a/9b/6e/8a9b6e5e8e8e8e8e8e8e8e8e8e8e8e8e.png">
-
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --azul-cinna: #b3e5fc; --azul-texto: #5da9e9; --blanco: #ffffff; }
@@ -19,56 +14,129 @@
             display: flex; flex-direction: column; align-items: center;
         }
         .container { max-width: 400px; width: 100%; }
-        .header-img { width: 130px; margin-top: 10px; }
+
+        /* Animación de Cinnamoroll */
+        .cinna-box { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .header-img { 
+            width: 140px; 
+            animation: float 3s ease-in-out infinite; 
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
         .card {
             background: var(--blanco); border-radius: 25px; padding: 20px;
             margin-bottom: 20px; box-shadow: 0 8px 15px rgba(179, 229, 252, 0.3);
             border: 2px solid var(--azul-cinna);
         }
-        .habit-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; gap: 12px; }
-        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--azul-cinna); }
+
+        /* Área de escritura */
+        textarea {
+            width: 90%; border: 1px solid #e0e0e0; border-radius: 15px;
+            padding: 15px; font-family: 'Quicksand'; font-size: 1rem;
+            resize: none; outline: none; transition: border 0.3s;
+        }
+        textarea:focus { border-color: var(--azul-cinna); }
+
+        .habit-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px dashed #f0f0f0; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         button {
             background-color: var(--azul-cinna); color: #4a90e2; border: none;
-            padding: 15px; border-radius: 50px; font-weight: 600; width: 100%;
+            padding: 15px; border-radius: 50px; font-weight: 600; width: 100%; cursor: pointer;
+            margin-top: 10px; box-shadow: 0 4px 0 #81d4fa;
         }
+        button:active { transform: translateY(2px); box-shadow: none; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <center><img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/0d/Cinnamoroll_character.png/220px-Cinnamoroll_character.png" class="header-img"></center>
-        
-        <div class="card">
-            <h2>☁️ Mis Pasitos Hoy</h2>
-            <div id="habit-list">
-                <div class="habit-item"><input type="checkbox" id="h1"> <span>Hablar con Dios</span></div>
-                <div class="habit-item"><input type="checkbox" id="h2"> <span>Nota para terapia</span></div>
-                <div class="habit-item"><input type="checkbox" id="h3"> <span>Identificar una emoción</span></div>
-            </div>
+        <div class="cinna-box">
+            <img src="https://raw.githubusercontent.com/Aris-Tottle/Skribbl-Helper/master/Cinnamoroll.png" id="cinnaImg" class="header-img">
         </div>
 
         <div class="card">
-            <h2>📖 Versículo</h2>
-            <p id="versiculo">"El Señor es tu guardador..."</p>
-            <button onclick="nuevoVersiculo()">✨ Nueva Promesa</button>
+            <h2 style="margin-top:0">☁️ ¿Cómo te sientes?</h2>
+            <p style="font-size: 0.8rem; color: #999;">Escribe lo que tienes en el corazón...</p>
+            <textarea id="moodInput" rows="3" placeholder="Ej: Me siento un poco ansiosa por el examen..."></textarea>
+            <button onclick="analizarSentimiento()">✨ Recibir Apoyo</button>
+        </div>
+
+        <div class="card" id="habitCard" style="display:none;">
+            <h2 id="habitTitle">☁️ Tus Pasitos Sugeridos</h2>
+            <div id="dynamicHabits"></div>
         </div>
     </div>
 
+    <audio id="magicSound" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
+
     <script>
-        const versiculos = [
-            '"No temas, porque yo estoy contigo." - Isaías 41:10',
-            '"Su amor nunca falla." - Salmo 136',
-            '"Echa tu ansiedad sobre Él." - 1 Pedro 5:7',
-            '"Mi paz os doy." - Juan 14:27'
-        ];
-        function nuevoVersiculo() {
-            const index = Math.floor(Math.random() * versiculos.length);
-            document.getElementById('versiculo').innerText = versiculos[index];
+        const audio = document.getElementById('magicSound');
+        const cinnaImg = document.getElementById('cinnaImg');
+
+        function analizarSentimiento() {
+            const texto = document.getElementById('moodInput').value.toLowerCase();
+            const habitContainer = document.getElementById('dynamicHabits');
+            const habitCard = document.getElementById('habitCard');
+            
+            // Limpiamos hábitos anteriores
+            habitContainer.innerHTML = '';
+            habitCard.style.display = 'block';
+            audio.play(); // Suena la campanita
+
+            let sugerencias = [];
+
+            // Lógica de palabras clave
+            if (texto.includes('ansios') || texto.includes('estrés') || texto.includes('miedo')) {
+                sugerencias = [
+                    'Respira: Inhala en 4 segundos, sostén 4, exhala 4.',
+                    'Repite: "Todo lo puedo en Cristo que me fortalece" (Fil. 4:13).',
+                    'Anota una cosa que puedas controlar ahora mismo.'
+                ];
+                cinnaImg.style.filter = "sepia(0.3) hue-rotate(180deg)"; // Cambia tono a azul más profundo
+            } else if (texto.includes('triste') || texto.includes('solo') || texto.includes('sola') || texto.includes('mal')) {
+                sugerencias = [
+                    'Escucha tu canción favorita de alabanza.',
+                    'Recuerda: Dios sana a los quebrantados de corazón (Sal. 147:3).',
+                    'Date un abrazo simbólico y toma un té caliente.'
+                ];
+                cinnaImg.style.transform = "scale(0.9)"; // Se hace más pequeñito (tímido)
+            } else if (texto.includes('agradecid') || texto.includes('bien') || texto.includes('feliz')) {
+                sugerencias = [
+                    'Haz una oración corta de gratitud.',
+                    'Comparte esa alegría con alguien más.',
+                    'Escribe este momento para recordarlo después.'
+                ];
+                cinnaImg.style.filter = "brightness(1.2)"; // Brilla
+            } else {
+                sugerencias = [
+                    'Hablar con Dios un momentito.',
+                    'Anotar algo valioso para tu terapia.',
+                    'Tomar un vaso de agua y descansar la vista.'
+                ];
+                cinnaImg.style.filter = "none";
+                cinnaImg.style.transform = "none";
+            }
+
+            // Crear los hábitos visualmente
+            sugerencias.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'habit-item';
+                div.innerHTML = `<input type="checkbox"> <span style="font-size:0.9rem">${s}</span>`;
+                habitContainer.appendChild(div);
+            });
+
+            // Animación de "salto" de Cinnamoroll al recibir apoyo
+            cinnaImg.animate([
+                { transform: 'translateY(0)' },
+                { transform: 'translateY(-30px)' },
+                { transform: 'translateY(0)' }
+            ], { duration: 500 });
         }
-        // Guardar progreso
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.addEventListener('change', () => localStorage.setItem(cb.id, cb.checked));
-            if (localStorage.getItem(cb.id) === "true") cb.checked = true;
-        });
     </script>
 </body>
 </html>
