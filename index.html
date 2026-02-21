@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinna-Paz & Hábitos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul-cinna: #b3e5fc;
+            --azul-texto: #5da9e9;
+            --blanco: #ffffff;
+        }
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--azul-texto);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container { max-width: 400px; width: 100%; }
+        .header-img { width: 150px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        
+        .card {
+            background: var(--blanco);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(179, 229, 252, 0.3);
+            border: 2px solid var(--azul-cinna);
+        }
+
+        h2 { font-size: 1.2rem; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        
+        /* Estilo de los Hábitos */
+        .habit-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 15px;
+        }
+        .habit-item:last-child { border-bottom: none; }
+        
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--azul-cinna);
+            cursor: pointer;
+        }
+
+        .habit-text { font-size: 1rem; color: #666; }
+        input[type="checkbox"]:checked + .habit-text {
+            text-decoration: line-through;
+            color: #bdc3c7;
+        }
+
+        button {
+            background-color: var(--azul-cinna);
+            color: #4a90e2;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        button:active { transform: scale(0.95); }
+
+        .footer { font-size: 0.8rem; color: #abbcc7; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <center>
+            <img src="https://i.pinimg.com/originals/3d/8d/62/3d8d62635293294378f44d825c9424e6.png" class="header-img" alt="Cinnamoroll">
+        </center>
+
+        <div class="card">
+            <h2>☁️ Mis Pasitos Hoy</h2>
+            <div id="habit-list">
+                <div class="habit-item">
+                    <input type="checkbox" id="h1">
+                    <span class="habit-text">Hablar con Dios</span>
+                </div>
+                <div class="habit-item">
+                    <input type="checkbox" id="h2">
+                    <span class="habit-text">Anotar algo para terapia</span>
+                </div>
+                <div class="habit-item">
+                    <input type="checkbox" id="h3">
+                    <span class="habit-text">Tomar un momento para mí</span>
+                </div>
+                <div class="habit-item">
+                    <input type="checkbox" id="h4">
+                    <span class="habit-text">Identificar una emoción</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📖 Versículo del Día</h2>
+            <p id="versiculo" style="font-style: italic; font-size: 0.95rem;">"El Señor es tu guardador..." - Salmo 121:5</p>
+            <button onclick="nuevoVersiculo()">✨ Nueva Promesa</button>
+        </div>
+
+        <div class="footer">Hecho con cariño • Para tu paz</div>
+    </div>
+
+    <script>
+        const versiculos = [
+            '"No temas, porque yo estoy contigo." - Isaías 41:10',
+            '"Su amor nunca falla." - Salmo 136',
+            '"Él sana a los quebrantados de corazón." - Salmo 147:3',
+            '"Echa toda tu ansiedad sobre Él." - 1 Pedro 5:7',
+            '"Mi paz os dejo, mi paz os doy." - Juan 14:27'
+        ];
+
+        function nuevoVersiculo() {
+            const index = Math.floor(Math.random() * versiculos.length);
+            document.getElementById('versiculo').innerText = versiculos[index];
+        }
+
+        // Guardar estado de los checks automáticamente
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                localStorage.setItem(checkbox.id, checkbox.checked);
+            });
+            // Cargar estado guardado
+            const saved = localStorage.getItem(checkbox.id);
+            if (saved === "true") checkbox.checked = true;
+        });
+    </script>
+</body>
+</html>
